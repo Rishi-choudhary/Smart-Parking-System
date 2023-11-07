@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if not cerendiatals%}
+<div class="alert alert-danger mt-3 d-flex align-items-center justify-content-center" role="alert">
+  <!-- <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg> -->
+  <div>
+    <h3 class="text-center">Incorrect username or password</h3>
+  </div>
+</div>
+{% endif %}
+
+<form class="auth" action="/login" method="post">
+
+
+
+    <h1 class="text-center m-5">Login</h1>
+    <div class="container-sm border p-3 container-fluid">
+    <div class="mt-5 mb-3">
+      <label for="exampleInputEmail1" class="form-label">Username</label>
+      <input type="text" required name="username" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Password</label>
+      <input type="password" name="password" required class="form-control" id="exampleInputPassword1">
+    </div>
+  
+
+    <div class="button">
+        <button type="submit" class="btn  btn-dark">Login</button>
+        <a class="px-3" href="/register">Create a account</a>
+      </div>
+    </div>
+  </form>
+
+{% endblock %}

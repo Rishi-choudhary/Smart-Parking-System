@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="/register" method="post">
+
+  {% if not cerendiatals%}
+  <div class="alert alert-danger mt-3  d-flex align-items-center justify-content-center" role="alert">
+    <div>
+      <h3 class="text-center">Please enter a valid username or password</h3>
+    </div>
+  </div>
+  {% elif not password_match %}
+  <div class="alert alert-danger mt-3  d-flex align-items-center justify-content-center" role="alert">
+    <div>
+      <h3 class="text-center">Password doesn't match</h3>
+    </div>
+  </div>
+  {% elif username_taken %}
+  <div class="alert alert-danger mt-3  d-flex align-items-center justify-content-center" role="alert">
+    <div>
+      <h3 class="text-center">Username was already taken</h3>
+    </div>
+  </div>
+  {% endif %}
+  
+    <h1 class="text-center m-5">Register</h1>
+    <div class="container-sm mb-5 border p-3 container-fluid">
+    <div class="mb-3">
+      <label for="exampleInputEmail1" class="form-label">Username</label>
+      <input type="text" name="username" required class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Mobile</label>
+        <input type="number" name="mobile" required class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Email address</label>
+        <input type="email" name="email" required class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputEmail1"  class="form-label">license number</label>
+        <input type="text" required class="form-control" name="car_no" placeholder="XX-XX-XXXX" id="exampleInputEmail1" aria-describedby="emailHelp">
+      </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1"  class="form-label">Password</label>
+      <input type="password" name="password" required class="form-control" id="exampleInputPassword1">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1"  class="form-label">Confirm password</label>
+      <input type="password" name="confirm" required class="form-control" id="exampleInputPassword1">
+    </div>
+  
+
+    <div class="button mt-5">
+        <button type="submit" class="btn  btn-dark">Register</button>
+        <a class="px-3" href="/login">already have an account</a>
+      </div>
+    </div>
+  </form>
+
+{% endblock %}

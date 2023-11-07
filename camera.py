@@ -1,37 +1,64 @@
 import cv2
+import pickle
+import cvzone
+import numpy as np 
+import time
 
-# Load the pre-trained Haar Cascade classifier for car detection
-car_cascade = cv2.CascadeClassifier('haar10kcascade.xml')
 
-url = "http://192.168.101.2:8080/video"
+width,height = 310, 250
 
-# Open a connection to the phone's camera
+url ="http://192.168.101.3:8080/video"
+
+#video Feed
 cap = cv2.VideoCapture(url)
 
+with open('CarParkPos',"rb") as f:
+        poslist = pickle.load(f)
+
+def parking_space(imgPro):
+    data = []
+    for pos in poslist:
+        x = pos[0]
+        y = pos[1]
+        
+        
+        ImgCrop = imgPro[y:y+height,x:x+height]
+        cv2.imshow(str(x*y),ImgCrop)
+        count = cv2.countNonZero(ImgCrop)
+        if count<800:
+            color = (0,255,0)
+            thickness =5
+            
+        else:
+            thickness =2
+            color = (0,0,255)
+            data+=pos
+            
+        cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),color,thickness)
+    print(data)
+    
+
+
 while True:
-    # Read a frame from the camera
-    ret, frame = cap.read()
-
-    if not ret:
-        break
-
-    # Convert the frame to grayscale (Haar Cascade works with grayscale images)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    # Detect cars in the frame
-    cars = car_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-
-    # Draw rectangles around detected cars
-    for (x, y, w, h) in cars:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-
-    # Display the frame with car detection
-    cv2.imshow('Car Detection', frame)
-
-    # Break the loop if the 'q' key is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# Release the camera and close the window
-cap.release()
-cv2.destroyAllWindows()
+    success,img = cap.read()
+    
+    imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    imgBlur = cv2.GaussianBlur(imgGray,(3,3),1)
+    
+    imgThreshold = cv2.adaptiveThreshold(imgBlur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,25,16)
+    imgMedian = cv2.medianBlur(imgThreshold,5)
+    kernel = np.ones((3,3),np.uint8)
+    imgDilate = cv2.dilate(imgMedian,kernel,iterations=1)
+    
+    cv2.imshow("imageBlur",imgBlur)
+    
+    parking_space(imgDilate)
+    for pos in poslist:
+        cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),(255,0,255),2)
+    # cv2.resize(img, (900, 800))  
+    cv2.namedWindow("Image", cv2.WINDOW_NORMAL)   
+    cv2.imshow("Image",img)
+    cv2.waitKey(1)
+    
+    
+    

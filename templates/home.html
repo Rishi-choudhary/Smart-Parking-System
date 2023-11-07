@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form class="hero-form" action="/home" method="post">
+    <div class="container-fluid p-3 mb-5">
+        <div class="m-5 d-flex"> <span  class="p-3 material-symbols-outlined">
+            pin_drop
+            </span>
+            <input type="text" name="location" class="form-control" id="location" placeholder="Search for a location">
+        </div>
+        <hr>
+
+        <div class="row">
+            <div class="col-6">
+                <p class="text-center">EV CAR</p>
+                
+                <div class="form-check">
+            
+         
+                    <input type="radio" class="btn-check"  value="EV car" name="options" id="option1" autocomplete="off" checked>
+                    <label class="btn" for="option1"><img class="img-fluid" src="../static/images/3173433.jpg" alt=""></label>
+                     
+                    </label>
+                  </div>
+            </div>
+            <div class="col-6">
+                <p class="text-center">FUEL CAR</p>
+
+               
+       <div class="form-check">
+        <input type="radio" class="btn-check"  value="Fuel" name="options" id="option2" autocomplete="off">
+        <label class="btn" for="option2"><img class="img-fluid" src="../static/images/12145022_Wavy_Eco-01_Single-08 2.svg" >
+        </label>
+        </label>
+    </div>
+                
+            </div>
+            <hr class="mt-5">
+        </div>
+        
+        <div class="mb-3 row">
+            <h1 class="my-3">Get Reservation</h1>
+            <h3 class="mb-5">$5 per hour </h3>
+
+            <div class="form-group mb-3">
+                <label for="start-time">Date</label>
+                <input type="date" class="form-control" id="start-time" name="Date" required>
+            </div>
+
+           <div> <div class="form-group mb-3 ">
+            <label for="start-time">Start Time:</label>
+            <input type="time" class="form-control" id="start-time" name="start-time" required>
+        </div>
+    
+        <div class="form-group mb-3">
+            <label for="end-time">End Time:</label>
+            <input type="time" class="form-control" id="end-time" name="end-time" required>
+        </div></div>
+         
+
+        <button type="submit" class="mt-3 btn btn-primary">check slots</button>
+
+        </div>
+    </div>
+    </form>
+{% endblock %}
+    

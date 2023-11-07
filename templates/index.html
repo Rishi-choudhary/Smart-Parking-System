@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="main-home-div">
+<div class="container-fluid container-sm d-flex mt-5 " id="grid">
+  <div class="mt-3 img">
+    <img src="../static/images/Parking-amico.png"  alt="...">
+  </div>
+    <div class="main-text-box d-grid mt-3">
+      <h1>Streamlined Parking Management With Real-Time Car Detection</h1>
+      <div class="button">
+        <button type="button" class="btn  btn-outline-dark"><a class="link-dark link-underline-opacity-0" href="/home">Get Started</a></button>
+      </div>
+      
+  </div>
+  </div>
+</div>
+
+
+<script>
+  function toggleGridItemClass() {
+    const gridItem = document.getElementById('grid'); // Replace with your actual selector
+    const mediaQuery = window.matchMedia('(max-width: 600px)');
+  
+    function handleMediaQueryChange(event) {
+      if (event.matches) {
+        // Media query matches, remove 'd-flex' class and add 'd-grid' class
+        gridItem.classList.remove('d-flex');
+        gridItem.classList.add('d-grid');
+      } else {
+        // Media query doesn't match, revert the classes
+        gridItem.classList.remove('d-grid');
+        gridItem.classList.add('d-flex');
+      }
+    }
+  
+    // Initial setup
+    handleMediaQueryChange(mediaQuery);
+  
+    // Listen for changes in the media query
+    mediaQuery.addListener(handleMediaQueryChange);
+  }
+  
+  toggleGridItemClass();
+  
+  
+
+</script>
+{% endblock %}
+    

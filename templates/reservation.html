@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+<!-- <div id="data-display"></div> -->
+
+<form action="/reserve" method="POST" class="form">
+
+<div class="container-fluid my-5" id="main-reservation">
+<div class="parking-container">
+    <div class="data-box container-fluid">
+        <h3 class="m-para font-bold">Parking Status</h3>
+        <p class="total-para">Total Seats:</p><span class="total-data">8</span>
+        <p class="avail-para">Available: </p><span class="avail-data">2</span>
+        <div class="location">
+                <p>Your Location:</p><i class="fas fa-map-marker-alt"></i><p>Silvassa</p>
+        </div>
+    </div>
+    <div class="display-box">
+        {% for parking in total_parking %}
+
+        {% if parking[2] in parking_list%}
+        <!-- <div id="1" class="lot-box inactive">{{ parking[2] }}</div> -->
+        <input  class="lot-box inactive text-center" value="{{ parking[2]}}" readonly  type="text">
+        {% else%}
+        <!-- <div id="1" class="lot-box">{{ parking[2] }}</div> -->
+        <input class="lot-box text-center"  readonly type="text" value="{{ parking[2]}}" name="parking_slot" id="selected">
+        <input type="text" name="final_parking" value="" class="d-none" id="final_parking">
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="container-fluid row reserve-button">
+        <button type="submit" id="book" class="btn mb-5 mt-3 px-5 btn-primary">Book slot</button>
+    </div>
+</div>
+
+</form>
+
+
+
+
+
+<script>
+
+
+    
+
+   const seats = document.querySelectorAll('.lot-box');
+    let selectedSeat = null;
+
+    seats.forEach(seat => {
+        seat.addEventListener('click', () => {
+            if (seat.classList.contains('selected')) {
+                alert('This seat is already booked.');
+            } else {
+                if (selectedSeat) {
+                    selectedSeat.classList.remove('selected');
+                }
+                seat.classList.add('selected');
+                consolelog(document.getElementsByClassName("selected").value)
+                document.getElementById("final_parking").value = document.getElementsByClassName("selected").value
+                selectedSeat = seat;
+            }
+        });
+    }); 
+
+
+
+      
+</script>
+
+{% endblock %}
+    
