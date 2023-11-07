@@ -44,21 +44,23 @@ Access the web application in your browser at http://localhost:5000 (by default)
 
 Integrate the camera system to capture real-time parking lot images and update the status.
 
-Usage
+# Usage
 Users can visit the web application to check parking availability and make reservations.
 
 Admins can access the admin panel by navigating to /admin to monitor and manage parking slots.
 
 To integrate your camera system, ensure that it provides real-time images and update the /reserve route in main.py to capture and process the camera feed.
 
-Contributing
+# Contributing
 Contributions to this project are welcome. You can contribute by opening issues, providing feedback, or submitting pull requests. Feel free to fork the project and make enhancements.
 
-License
+# License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-Acknowledgments
+# Acknowledgments
 This project was inspired by the need for efficient parking space management.
 Special thanks to the Flask and OpenCV communities for their valuable contributions.
-Contact
-If you have any questions or need assistance, please feel free to contact [Your Name
+# Contact
+If you have any questions or need assistance, please feel free to contact Rishi Choudhary - rishichoudhary582@gmail.com
+
+
