@@ -1,13 +1,13 @@
 import cv2
 import pickle
 
-url ="http://192.168.101.4:8080/video"
+url ="http://192.168.97.154:8080/video"
 
 
 cap = cv2.VideoCapture(url)
 
 
-width,height = 310, 250
+width,height = 180, 170
 
 try:
     with open('CarParkPos',"rb") as f:

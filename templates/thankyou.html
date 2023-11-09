@@ -1,1 +1,24 @@
-<h1>{{ data }}</h1>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card px-5 m-5 mb-3">
+    <img src="../static/images/icons8-checkmark-480.png"  class="card-image p-3" alt="...">
+    <div class="card-body">
+      <h1 class="text-center" >Your Payment Was Succesful</h1>
+      <p class="card-text"></p>
+    </div>
+    
+    <h1  class="text-center mt-5">THANK YOU!</h1>
+
+<div class="main-content px-5 mt-3">
+    <i class="fa fa-check main-content__checkmark" id="checkmark"></i>
+    <p class="main-content__body text-center" data-lead-id="main-content-body">Thanks a bunch for filling that out. It means a lot to us, just like you do! We really appreciate you giving us a moment of your time today. Thanks for being you.</p>
+</div>
+  </div>
+    <button type="button" class="btn end  btn-outline-dark"><a class="link-dark link-underline-opacity-0" href="/home">Back home</a></button>
+
+
+</body>
+</html>
+{% endblock %}
+    

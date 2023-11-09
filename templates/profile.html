@@ -2,6 +2,15 @@
 
 {% block content %}
 
+{% 
+    if username_taken %}
+<div class="alert alert-danger mt-3  d-flex align-items-center justify-content-center" role="alert">
+  <div>
+    <h3 class="text-center">Username was already taken</h3>
+  </div>
+</div>
+{% endif %}
+
 
 <div class="container profile">
     <h1 class="font-bold text-center my-5">Profile Page</h1>
@@ -10,16 +19,17 @@
         <div class="col-md-3  profile-photo">
             <img src="../static/images/6769264_60111.jpg" alt="Profile Photo" class="img-fluid rounded-circle">
         </div>
+        <h2 class="text-center mt-3">{{ username }}</h2>
     </div>
  <hr>
     <!-- Change Username Section -->
     <div class="card mb-5 ">
         <div class="card-header">Change Username</div>
         <div class="card-body">
-            <form>
+            <form action="/profile" method="post">
                 <div class="form-group">
                     <label class="my-3" for="newUsername">New Username</label>
-                    <input type="text" class="form-control" id="newUsername" placeholder="Enter new username">
+                    <input type="text" name="username" class="form-control" id="newUsername" placeholder="Enter new username">
                 </div>
                 <button type="submit" class="btn my-3 btn-primary">change</button>
             </form>
@@ -27,45 +37,7 @@
     </div>
     <hr>
 
-    <!-- Change Password Section -->
-    <div class="card mb-5">
-        <div class="card-header">Change Password</div>
-        <div class="card-body">
-            <form>
-                <div class="form-group">
-                    <label class="my-3" for="currentPassword">Current Password</label>
-                    <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password">
-                </div>
-                <div class="form-group">
-                    <label class="my-3" for="newPassword">New Password</label>
-                    <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
-                </div>
-                <button type="submit" class="btn my-3 btn-primary">Submit</button>
-            </form>
-        </div>
-    </div>
 
-    <!-- <div class="card">
-        <div class="card-header">History</div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Action</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2023-01-01</td>
-                        <td>Login</td>
-                        <td>Successful login</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div> -->
 </div>
 {% endblock %}
     

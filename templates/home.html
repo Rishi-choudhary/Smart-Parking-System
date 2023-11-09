@@ -6,12 +6,12 @@
         <div class="m-5 d-flex"> <span  class="p-3 material-symbols-outlined">
             pin_drop
             </span>
-            <input type="text" name="location" class="form-control" id="location" placeholder="Search for a location">
+            <input type="text" required name="location" class="form-control" id="location" placeholder="Search for a location">
         </div>
         <hr>
 
         <div class="row">
-            <div class="col-6">
+            <!-- <div class="col-6">
                 <p class="text-center">EV CAR</p>
                 
                 <div class="form-check">
@@ -22,8 +22,8 @@
                      
                     </label>
                   </div>
-            </div>
-            <div class="col-6">
+            </div> -->
+            <!-- <div class="col-6">
                 <p class="text-center">FUEL CAR</p>
 
                
@@ -33,8 +33,8 @@
         </label>
         </label>
     </div>
-                
-            </div>
+
+            </div> -->
             <hr class="mt-5">
         </div>
         
@@ -44,17 +44,17 @@
 
             <div class="form-group mb-3">
                 <label for="start-time">Date</label>
-                <input type="date" class="form-control" id="start-time" name="Date" required>
+                <input type="date" class="form-control" id="dateInput" name="Date" required>
             </div>
 
            <div> <div class="form-group mb-3 ">
             <label for="start-time">Start Time:</label>
-            <input type="time" class="form-control" id="start-time" name="start-time" required>
+            <input type="time" class="form-control time" id="start-time" name="start-time" required>
         </div>
     
         <div class="form-group mb-3">
             <label for="end-time">End Time:</label>
-            <input type="time" class="form-control" id="end-time" name="end-time" required>
+            <input type="time" class="form-control time" id="end-time" name="end-time" required>
         </div></div>
          
 
@@ -63,5 +63,74 @@
         </div>
     </div>
     </form>
+<script>
+    function updateDateInput() {
+        const dateInput = document.getElementById("dateInput");
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+
+    // Function to update the time input
+    function updateTimeInput() {
+        const timeInput = document.querySelectorAll(".time")
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    }
+
+    // Update the date and time inputs immediately
+    updateDateInput();
+    updateTimeInput();
+
+    // Update the date and time inputs every second (1000 milliseconds)
+    setInterval(updateDateInput, 1000);
+    setInterval(updateTimeInput, 1000);
+
+let dataset = ['Silvassa',"vapi"]
+let sortedNames = dataset.sort();
+//reference
+let input = document.getElementById("location");
+//Execute function on keyup
+input.addEventListener("keyup", (e) => {
+  //loop through above array
+  //Initially remove all elements ( so if user erases a letter or adds new letter then clean previous outputs)
+  removeElements();
+  for (let i of sortedNames) {
+    //convert input to lowercase and compare with each string
+    if (
+      i.toLowerCase().startsWith(input.value.toLowerCase()) &&
+      input.value != ""
+    ) {
+      //create li element
+      let listItem = document.createElement("li");
+      //One common class name
+      listItem.classList.add("list-items");
+      listItem.style.cursor = "pointer";
+      listItem.setAttribute("onclick", "displayNames('" + i + "')");
+      //Display matched part in bold
+      let word = "<b>" + i.substr(0, input.value.length) + "</b>";
+      word += i.substr(input.value.length);
+      //display the value in array
+      listItem.innerHTML = word;
+      document.querySelector(".list").appendChild(listItem);
+    }
+  }
+});
+function displayNames(value) {
+  input.value = value;
+  removeElements();
+}
+function removeElements() {
+  //clear all the item
+  let items = document.querySelectorAll(".list-items");
+  items.forEach((item) => {
+    item.remove();
+  });
+}
+</script>
 {% endblock %}
     

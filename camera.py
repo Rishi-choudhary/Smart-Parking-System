@@ -5,9 +5,11 @@ import numpy as np
 import time
 
 
-width,height = 310, 250
+width,height = 180, 170
 
-url ="http://192.168.101.3:8080/video"
+
+
+url ="http://192.168.97.154:8080/video"
 
 #video Feed
 cap = cv2.VideoCapture(url)

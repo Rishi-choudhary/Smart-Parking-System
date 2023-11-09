@@ -1,15 +1,13 @@
 from flask import Flask, flash, jsonify, redirect, render_template, request, session ,url_for
 from flask_session import Session
-from flask_socketio import SocketIO
-from threading import Thread
+import math
 from helpers import login_required, hours_between_times
 import cv2
 import pickle
-import cvzone
 import numpy as np 
 import time
 import os
-from database import get_user_details , get_license_no , hash_password  ,new_user,create_database,check_password_hash,get_user_details_by_id
+from database import new_schedule, update_password,update_username, get_user_details , get_license_no , hash_password  ,new_user,create_database,check_password_hash,get_user_details_by_id,check_schedule_reserve
 
 
 
@@ -17,7 +15,6 @@ from database import get_user_details , get_license_no , hash_password  ,new_use
 
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_PERMANENT"] = False
@@ -43,56 +40,60 @@ def after_request(response):
 
 #Initalise Database
 
-if 'my_database.db' in os.listdir():
-    pass
-else:
-    create_database()
+
 
 @app.route('/')
 def index():
        if request.method == "GET":
             session.clear()
+            if 'my_database.db' in os.listdir():
+                pass
+            else:
+                create_database()
             return render_template("index.html")
 
 
+shedule = []
 
 @app.route('/home', methods=["GET", "POST"])
 @login_required
 def home():
     if request.method == "POST":
+        id = session["user_id"]
         location = request.form.get("location")
         Date = request.form.get("Date")
         start_time = request.form.get("start-time")
         end_time = request.form.get("end-time")
-        car = request.form.get("options")
-        
-        print(location,Date,car,start_time,end_time)
-        
-        
         hours = hours_between_times(start_time,end_time)
+
+        
+        shedule.append([id,get_license_no(get_user_details_by_id(id)[1]),Date,start_time,end_time,math.floor(hours),location])
+        print(shedule)
         
         return redirect("/reserve")
     else:
         return render_template('home.html')
-        
+      
+
+
+  
         
 
 
-@app.route('/reserve', methods=["GET", "POST"])
+@app.route('/reserve', methods=["GET","POST"])
 @login_required
 def reserve():
-    
+
     if request.method == "POST":
-        data = request.form.get("final_parking")
-        print(data)
-        return render_template("thankyou.html",data=data)
+        return redirect("/bill")
     else:
-        
+            
         start_time = time.time()
 
-        width,height = 220, 180
+        width,height = 180, 170
 
-        url ="http://192.168.101.2:8080/video"
+
+        url ="http://192.168.101.5:8080/video"
 
         #video Feed
         cap = cv2.VideoCapture(url)
@@ -161,11 +162,20 @@ def reserve():
                     unique_objects.append(obj[2])
 
             return unique_objects
-
-        
-        
+          
         print(check_available_parking())
-        return render_template('reservation.html',parking_list=check_available_parking(),total_parking=poslist)
+        reserved_parking = []
+        shedule_reserved_parking =  check_schedule_reserve(shedule[0][2],shedule[0][3],shedule[0][4])
+        if  (shedule_reserved_parking):
+            return render_template('reservation.html',parking_list=check_available_parking(),total_parking=poslist,reserved=reserved_parking)
+
+        else:
+            reserved_parking.append(shedule_reserved_parking)
+            return render_template('reservation.html',parking_list=check_available_parking(),total_parking=poslist,reserved=reserved_parking,start_time=shedule_reserved_parking[1],end_time = shedule_reserved_parking[2])
+            
+            
+
+            
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -187,6 +197,7 @@ def login():
 
         # Query database for username
         user_details = get_user_details(request.form.get("username"))
+        print(user_details)
         password = user_details[3]
         # Ensure username exists and password is correct
         if len(user_details) != 1 or check_password_hash(request.form.get("password"), password):        
@@ -251,21 +262,40 @@ def register():
 @app.route("/profile",methods=["GET","POST"])
 @login_required
 def profile():
+    id = session["user_id"]
+    
+    
     if request.method == "POST":
-        return render_template("profile.html")
+        new_username = request.form.get("username")
+        if update_username(id,new_username):
+            return render_template("profile.html",username = get_user_details_by_id(id)[1],username_taken=False)
+        else:
+            return rendere_template("profile",username= get_user_details_by_id(id)[1],username_taken=True)
+            
     else:
-        return render_template("profile.html", )
+        return render_template("profile.html", username = get_user_details_by_id(id)[1],username_taken=False)
 
+parking_slot = []
 
-# def update_parking_data():
-#     # Implement your data processing logic here
-#     while True:
-#         new_data =   # Implement your data retrieval logic
-#         if new_data != previous_data:
-#             socketio.emit('update', new_data)
-#             previous_data = new_data
+@app.route("/bill",  methods=["GET",'POST'])
+def bill():
+    
+    if request.method == "POST":
+        data = request.get_json()
+        parking_slot.append(data['data'])
+        shedule.append(data['data'][0])
+        print(shedule)
+        return jsonify({'message': 'Data received!'}), 200
+    else:
+        return render_template("billing.html",data=parking_slot[0])
 
-
+@app.route("/pay",methods=["POST"])
+def pay():
+    new_schedule(shedule[0][0],shedule[0][1],shedule[0][2],shedule[0][3],shedule[0][4],shedule[0][5],shedule[0][6],int(shedule[1]))
+    while len(shedule) != 0:
+        shedule.pop()
+        print(shedule)
+    return render_template("thankyou.html")
 
 
 

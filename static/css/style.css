@@ -109,6 +109,12 @@ form img {
   background: #64db96 !important;
 }
 
+.list-items {
+  padding: 10px 5px;
+  top: 0;
+  /* position: absolute; */
+}
+
 .parking-container {
   border-radius: 8px;
   width: 100%;
@@ -316,6 +322,42 @@ main {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+}
+
+.bill .bill-image {
+  width: 50%;
+}
+
+.bill .bill-btn {
+  padding: 5px 45px;
+  font-size: 26px;
+  margin: auto;
+}
+
+.navbar-nav .profile-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.card-image {
+  width: 150px;
+  height: 150px;
+  margin: auto;
+}
+
+.site-header {
+  margin: auto;
+}
+
+.end {
+  margin-left: 45%;
 }
 
 @media only screen and (max-width: 600px) {
