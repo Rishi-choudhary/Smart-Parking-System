@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if not location%}
+<div class="alert alert-danger mt-3 d-flex align-items-center justify-content-center" role="alert">
+  <!-- <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg> -->
+  <div>
+    <h3 class="text-center">Invalid Location</h3>
+  </div>
+</div>
+{% endif %}
 <form class="hero-form" action="/home" method="post">
     <div class="container-fluid p-3 mb-5">
-        <div class="m-5 d-flex"> <span  class="p-3 material-symbols-outlined">
-            pin_drop
-            </span>
-            <input type="text" required name="location" class="form-control" id="location" placeholder="Search for a location">
+       <div class="m-5 "> 
+            <input type="text" id="locationInput" required name="location" class="p-3 form-control" id="location" placeholder="Search for a location">
         </div>
-        <hr>
 
         <div class="row">
             <!-- <div class="col-6">
@@ -56,6 +61,13 @@
             <label for="end-time">End Time:</label>
             <input type="time" class="form-control time" id="end-time" name="end-time" required>
         </div></div>
+
+      
+   
+    
+
+
+
          
 
         <button type="submit" class="mt-3 btn btn-primary">check slots</button>
@@ -90,47 +102,65 @@
     setInterval(updateDateInput, 1000);
     setInterval(updateTimeInput, 1000);
 
-let dataset = ['Silvassa',"vapi"]
-let sortedNames = dataset.sort();
-//reference
-let input = document.getElementById("location");
-//Execute function on keyup
-input.addEventListener("keyup", (e) => {
-  //loop through above array
-  //Initially remove all elements ( so if user erases a letter or adds new letter then clean previous outputs)
-  removeElements();
-  for (let i of sortedNames) {
-    //convert input to lowercase and compare with each string
-    if (
-      i.toLowerCase().startsWith(input.value.toLowerCase()) &&
-      input.value != ""
-    ) {
-      //create li element
-      let listItem = document.createElement("li");
-      //One common class name
-      listItem.classList.add("list-items");
-      listItem.style.cursor = "pointer";
-      listItem.setAttribute("onclick", "displayNames('" + i + "')");
-      //Display matched part in bold
-      let word = "<b>" + i.substr(0, input.value.length) + "</b>";
-      word += i.substr(input.value.length);
-      //display the value in array
-      listItem.innerHTML = word;
-      document.querySelector(".list").appendChild(listItem);
-    }
-  }
-});
-function displayNames(value) {
-  input.value = value;
-  removeElements();
-}
-function removeElements() {
-  //clear all the item
-  let items = document.querySelectorAll(".list-items");
-  items.forEach((item) => {
-    item.remove();
-  });
-}
+      // Example list of locations
+      const locationsList = ["SILVASSA", "VAPI"];
+  
+      // Get the input field and set up the autocomplete function
+      const inputField = document.getElementById("locationInput");
+      inputField.addEventListener("input", function() {
+          autocomplete(inputField.value);
+      });
+  
+      function autocomplete(input) {
+          // Close any already open lists of autocompleted values
+          closeAllLists();
+  
+          // If the input field is empty, do not show any suggestions
+          if (!input) {
+              return;
+          }
+  
+          // Create a div element that will contain the autocomplete items
+          const autocompleteContainer = document.createElement("div");
+          autocompleteContainer.setAttribute("class", "autocomplete-items");
+  
+          // Append the autocomplete container as a sibling to the input field
+          inputField.parentNode.appendChild(autocompleteContainer);
+  
+          // Create a list of matching locations
+          const matches = locationsList.filter(location => location.toLowerCase().includes(input.toLowerCase()));
+  
+          // Create and append div elements for each matching location
+          matches.forEach(match => {
+              const item = document.createElement("div");
+              item.innerHTML = "<strong>" + match.substr(0, input.length) + "</strong>";
+              item.innerHTML += match.substr(input.length);
+              item.innerHTML += "<input type='hidden' value='" + match + "'>";
+              item.addEventListener("click", function() {
+                  // Insert the value for the autocomplete text field
+                  inputField.value = this.getElementsByTagName("input")[0].value;
+                  // Close the autocomplete list
+                  closeAllLists();
+              });
+              autocompleteContainer.appendChild(item);
+          });
+      }
+  
+      function closeAllLists() {
+          const autocompleteItems = document.getElementsByClassName("autocomplete-items");
+          
+          for (let i = 0; i < autocompleteItems.length; i++) {
+              autocompleteItems[i].parentNode.removeChild(autocompleteItems[i]);
+          }
+      }
+  
+      // Close the autocomplete list when clicking outside the input field
+      document.addEventListener("click", function(e) {
+          if (e.target !== inputField) {
+              closeAllLists();
+          }
+      });
+  
 </script>
 {% endblock %}
     

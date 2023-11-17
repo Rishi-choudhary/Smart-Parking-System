@@ -1,15 +1,13 @@
-from flask import Flask, flash, jsonify, redirect, render_template, request, session ,url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session ,url_for,Response
 from flask_session import Session
 import math
-from helpers import login_required, hours_between_times
-import cv2
+from helpers import login_required, hours_between_times,generate_frames,reserve_function,admin_login_required
 import pickle
-import numpy as np 
-import time
 import os
-from database import new_schedule, update_password,update_username, get_user_details , get_license_no , hash_password  ,new_user,create_database,check_password_hash,get_user_details_by_id,check_schedule_reserve
-
-
+import sqlite3
+import hashlib
+from sqlite3 import Error
+from database import *
 
 
 
@@ -58,6 +56,8 @@ shedule = []
 @app.route('/home', methods=["GET", "POST"])
 @login_required
 def home():
+    locationsList = ["SILVASSA", "VAPI"];
+    
     if request.method == "POST":
         id = session["user_id"]
         location = request.form.get("location")
@@ -66,13 +66,17 @@ def home():
         end_time = request.form.get("end-time")
         hours = hours_between_times(start_time,end_time)
 
+        if location not in locationsList:
+            return render_template("home.html", location=False)
         
         shedule.append([id,get_license_no(get_user_details_by_id(id)[1]),Date,start_time,end_time,math.floor(hours),location])
         print(shedule)
         
         return redirect("/reserve")
     else:
-        return render_template('home.html')
+        while len(shedule) != 0:
+            shedule.pop()
+        return render_template('home.html',location=True)
       
 
 
@@ -83,95 +87,23 @@ def home():
 @app.route('/reserve', methods=["GET","POST"])
 @login_required
 def reserve():
+    
+    with open('CarParkPos',"rb") as f:
+            poslist = pickle.load(f)
+    
 
     if request.method == "POST":
         return redirect("/bill")
     else:
-            
-        start_time = time.time()
-
-        width,height = 180, 170
-
-
-        url ="http://192.168.101.5:8080/video"
-
-        #video Feed
-        cap = cv2.VideoCapture(url)
-
-        with open('CarParkPos',"rb") as f:
-                poslist = pickle.load(f)
-        
-        
-        parking_box_id = []
-        
-        def parking_space(imgPro):
-            for pos in poslist:
-                x = pos[0]
-                y = pos[1]
-                ImgCrop = imgPro[y:y+height,x:x+height]
-                cv2.imshow(str(x*y),ImgCrop)
-                count = cv2.countNonZero(ImgCrop)
-                if count<800:
-                    color = (0,255,0)
-                    thickness =5
-                    parking_box_id.append(pos)
-                    
-                else:
-                    thickness =2
-                    color = (0,0,255)
-                cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),color,thickness)
-                
-        
-        
-        while True:
-            success,img = cap.read()
-            
-            imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-            imgBlur = cv2.GaussianBlur(imgGray,(3,3),1)
-            
-            imgThreshold = cv2.adaptiveThreshold(imgBlur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,25,16)
-            imgMedian = cv2.medianBlur(imgThreshold,5)
-            kernel = np.ones((3,3),np.uint8)
-            imgDilate = cv2.dilate(imgMedian,kernel,iterations=1)
-            
-            cv2.imshow("imageBlur",imgBlur)
-            
-            parking_space(imgDilate)
-            
-            if not success:  # Check if the frame was captured successfully
-                print("Error: Cannot capture frame")
-                break
-            
-            if time.time() - start_time >= 3:
-                break
-            
-            for pos in poslist:
-                cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),(255,0,255),2)
-            cv2.namedWindow("Image", cv2.WINDOW_NORMAL)   
-            cv2.imshow("Image",img)
-            cv2.waitKey(1)
-            
-        cap.release()
-        cv2.destroyAllWindows()
-        # print(parking_box_id)
-        def check_available_parking():
-            unique_objects = []
-
-            for obj in parking_box_id:
-                if obj[2] not in unique_objects:
-                    unique_objects.append(obj[2])
-
-            return unique_objects
-          
-        print(check_available_parking())
+        reserve_fucntion_list = reserve_function()
         reserved_parking = []
         shedule_reserved_parking =  check_schedule_reserve(shedule[0][2],shedule[0][3],shedule[0][4])
         if  (shedule_reserved_parking):
-            return render_template('reservation.html',parking_list=check_available_parking(),total_parking=poslist,reserved=reserved_parking)
+            return render_template('reservation.html',parking_list=reserve_fucntion_list,total_parking=poslist,reserved=reserved_parking)
 
         else:
             reserved_parking.append(shedule_reserved_parking)
-            return render_template('reservation.html',parking_list=check_available_parking(),total_parking=poslist,reserved=reserved_parking,start_time=shedule_reserved_parking[1],end_time = shedule_reserved_parking[2])
+            return render_template('reservation.html',parking_list=reserve_fucntion_list,total_parking=poslist,reserved=reserved_parking,start_time=shedule_reserved_parking[1],end_time = shedule_reserved_parking[2])
             
             
 
@@ -183,32 +115,55 @@ def login():
     
     session.clear()
  
+        
+        
     if request.method == "POST":
-        print("fsdffsafsdaf")
-        # Ensure username was submitted
-        if not request.form.get("username"):
-            return render_template("login.html", cerendiatals=False)
         
 
-        # Ensure password was submitted
-        elif not request.form.get("password"):
-        
-            return render_template("login.html",cerendiatals=False)
+        if not request.form.get("username") or not request.form.get("password"):
+            return render_template("login.html", credentials=False)
 
-        # Query database for username
+        # Query database for admin details
         user_details = get_user_details(request.form.get("username"))
-        print(user_details)
-        password = user_details[3]
-        # Ensure username exists and password is correct
-        if len(user_details) != 1 or check_password_hash(request.form.get("password"), password):        
+        if len(user_details) == 0 :
+            return render_template("login.html", credentials=False)
+        
+        password = user_details[0][3]
+        
+
+        # Ensure admin details exist and password is correct
+        if check_password_hash(request.form.get("password"), password):        
             # Remember which user has logged in
-            session["user_id"] = user_details[0]
+            session["user_id"] = user_details[0][0]
 
             # Redirect user to home page
             return redirect("/home")
         else:
-            print("chutyye")
             return render_template("login.html", cerendiatals=False)
+        # # Ensure username was submitted
+        # if not request.form.get("username"):
+        #     return render_template("login.html", cerendiatals=False)
+        
+
+        # # Ensure password was submitted
+        # elif not request.form.get("password"):
+        
+        #     return render_template("login.html",cerendiatals=False)
+
+        # # Query database for username
+        # user_details = get_user_details(request.form.get("username"))
+        # print(user_details)
+        # password = user_details[3]
+        # # Ensure username exists and password is correct
+        # if len(user_details) != 1 or check_password_hash(request.form.get("password"), password):        
+        #     # Remember which user has logged in
+        #     session["user_id"] = user_details[0]
+
+        #     # Redirect user to home page
+        #     return redirect("/home")
+        # else:
+        #     print("chutyye")
+        #     return render_template("login.html", cerendiatals=False)
 
     else:
         return render_template("login.html" , cerendiatals=True)
@@ -244,13 +199,12 @@ def register():
         
         
         user_details = get_user_details(username)
-       
-        if user_details == None:
-            new_user(username,email,password,car_no,mobile_no)
-        # redirect to login page
-            return redirect("/home")
-
         
+        if len(user_details) == 0 :
+            new_user(username,email,password,car_no,mobile_no)
+            return redirect("/home")
+            
+       
         return render_template("register.html", password_match=True,cerendiatals=True,username_taken=True)
         
        
@@ -258,6 +212,122 @@ def register():
     else:
         return render_template("register.html",cerendiatals=True,username_taken=False,password_match=True)
     
+    
+    
+    
+@app.route("/adminLogin",methods=["GET","POST"])
+def admin_login():
+    session.clear()
+    
+
+    if request.method == "POST":
+        if not request.form.get("username") or not request.form.get("password"):
+            return render_template("adminLogin.html", credentials=False)
+
+        # Query database for admin details
+        admin_details = get_admin_details( request.form.get("username"))
+        if len(admin_details) == 0:
+            print("not nuser")
+            return render_template("adminLogin.html", credentials=False)
+        
+        password = admin_details[0][2]
+        print("fsfs")
+        # Ensure admin details exist and password is correct
+        if check_password_hash(request.form.get("password"), password):                    
+            session["admin_id"] = admin_details[0][0]
+            print("risisfs")
+            # Redirect admin to the home page
+            return redirect("/admin")
+        else:
+            return render_template("adminLogin.html", credentials=False)
+
+
+    else:
+        return render_template("adminLogin.html" , cerendiatals=True)
+
+
+
+@app.route("/admin")
+@admin_login_required
+def admin():
+    id = session["admin_id"]
+    
+    with open('CarParkPos',"rb") as f:
+        poslist = pickle.load(f)
+    
+    reserve_fucntion_list = len(reserve_function())
+    
+    admin_location = get_admin_details_by_id(id)[0][4]
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Schedule WHERE location = ?", (admin_location,))
+    locations = cursor.fetchall()
+    conn.close()
+    return render_template("dashboard.html",admin=True,locations=locations,parking_list=reserve_fucntion_list,total_parking=len(poslist))
+
+@app.route("/admin/reserved")
+@admin_login_required
+def reserved():
+    
+      
+    with open('CarParkPos',"rb") as f:
+        poslist = pickle.load(f)
+    reserve_fucntion_list = reserve_function()
+    return render_template('reserved.html',parking_list=reserve_fucntion_list,total_parking=poslist,admin=True)
+    
+@app.route("/admin/view_parking")
+@admin_login_required
+def view_parking():
+    return render_template("view_parking.html",admin=True)
+
+@app.route("/admin/pricing",methods=["GET","POST"])
+@admin_login_required
+def pricing():
+    id = session['admin_id'] 
+    
+    if request.method == "POST":
+        price = request.form.get("price")
+        print(type(price))
+        if update_admin_location_price(id,int(price)):
+            return render_template("pricing.html",admin=True,show_message=True,price = get_admin_details_by_id(id)[0][5])
+        return "SOMETHING ERROR OCCURRED"
+    return render_template("pricing.html",admin=True,price = get_admin_details_by_id(id)[0][5])
+        
+        
+
+@app.route("/admin/history")
+@admin_login_required
+def history():
+    id = session["admin_id"]
+    admin_location = get_admin_details_by_id(id)[0][4]
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Schedule WHERE location = ?", (admin_location,))
+    locations = cursor.fetchall()
+    conn.close()
+    return render_template("history.html",admin=True,locations=locations)
+
+@app.route("/admin/profile",methods=["GET","POST"])
+@admin_login_required
+def admin_profile():
+    id = session["admin_id"]
+    admin_details = get_admin_details_by_id(id)[0]
+    print(admin_details)
+    location = admin_details[4]
+    if request.method == "POST":
+        new_username = request.form.get("username")
+        if update_admin_username(id,new_username):
+            return render_template("adminProfile.html",username =admin_details[1],username_taken=False,location=location,admin=True)
+        else:
+            return rendere_template("adminProfile.html",username=admin_details[1],username_taken=True,location=locatio,admin=Truen)
+            
+    else:
+        return render_template("adminProfile.html", username=admin_details[1],username_taken=False,location=location,admin=True)
+    return render_template("adminProfile.html",location=location,admin=True)
+
+
+
+
     
 @app.route("/profile",methods=["GET","POST"])
 @login_required
@@ -268,7 +338,8 @@ def profile():
     if request.method == "POST":
         new_username = request.form.get("username")
         if update_username(id,new_username):
-            return render_template("profile.html",username = get_user_details_by_id(id)[1],username_taken=False)
+            return render_template("profile.html",username = get_user_details_by_id(id)[1]
+                                   ,username_taken=Fa13lse)
         else:
             return rendere_template("profile",username= get_user_details_by_id(id)[1],username_taken=True)
             
@@ -278,6 +349,7 @@ def profile():
 parking_slot = []
 
 @app.route("/bill",  methods=["GET",'POST'])
+@login_required
 def bill():
     
     if request.method == "POST":
@@ -290,6 +362,7 @@ def bill():
         return render_template("billing.html",data=parking_slot[0])
 
 @app.route("/pay",methods=["POST"])
+@login_required
 def pay():
     new_schedule(shedule[0][0],shedule[0][1],shedule[0][2],shedule[0][3],shedule[0][4],shedule[0][5],shedule[0][6],int(shedule[1]))
     while len(shedule) != 0:
@@ -297,6 +370,19 @@ def pay():
         print(shedule)
     return render_template("thankyou.html")
 
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route("/logout")
+def logout():
+    """Log user out"""
+
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
 
 
 if __name__ == '__main__':

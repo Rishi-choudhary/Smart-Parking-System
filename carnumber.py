@@ -45,14 +45,19 @@
 import cv2
 import numpy as np
 import easyocr
+import time
+from helpers import calculate_similarity
 
 # Load the EasyOCR reader
 reader = easyocr.Reader(['en'])
 
 
-url = "http://192.168.101.5:8080/video"
+url = "http://192.168.101.3:8080/video"
 # Initialize the video capture
 cap = cv2.VideoCapture(url)  # 0 for the default camera, or provide a path to a video file
+
+# conn = sqlite3.connect('my_database.db')
+# cursor = conn.cursor()
 
 while True:
     
@@ -102,14 +107,20 @@ while True:
             
             # Display the frame with the detected plate
             cv2.imshow("Car Plate Detection", frame)
-
             # Break the loop and print the result
-            print(result)
-            break
+            if calculate_similarity("KA 19 1316",result[0][1]) > 50:
+                print(result[0][1] , "MATCH")
+                break
+            else:
+                print(result[0][1])
+                print("not match")
+           
+    # cursor.execute("SELECT username FROM User WHERE car_no = ?", (result[],))
+    # car_no = cursor.fetchone()
 
     # Display the original frame
     cv2.imshow("Car Plate Detection", frame)
-
+    
     if cv2.waitKey(1) & 0xFF == 27:  # Press 'Esc' key to exit the loop
         break
 

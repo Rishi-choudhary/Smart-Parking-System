@@ -22,6 +22,61 @@
     />
   </head>
   <body>
+
+    {% if admin %}
+    <!-- <nav class="navbar navbar-default no-margin">
+      <div class="navbar-header fixed-brand">
+         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+</button>
+         <a class="navbar-brand" href="#"><i class="fa fa-rocket fa-4"></i> M-33</a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+         <ul class="nav navbar-nav">
+            <li class="active">
+               <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"> <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+               </button>
+            </li>
+         </ul>
+      </div>
+   </nav> -->
+   <div id="wrapper" >
+      <!-- Sidebar -->
+      <div id="sidebar-wrapper">
+         <ul class="sidebar-nav nav-pills nav-stacked" id="menu" class="mt-5">
+          <li class="nav-item m-5 profile">
+            <a  href="/admin/profile"
+              ><img
+                src="../static/images/6769264_60111.jpg"
+                style="height: 60px"
+                alt=""
+                class="img-fluid"
+            /></a>
+        
+          </li>
+            <li class="m-3">
+               <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x "></i></span> Dashboard</a>
+           
+            </li>
+            <li class="m-3">
+               <a href="/admin/reserved"><span class="fa-stack fa-lg pull-left"><i class="fa fa-flag fa-stack-1x "></i></span>Reserved Parking</a>
+        
+            </li>
+            <li class="m-3">
+               <a href="/admin/view_parking"><span class="fa-stack fa-lg pull-left"><i class="fa fa-cloud-download fa-stack-1x "></i></span>View Parking</a>
+            </li>
+            <li class="m-3">
+               <a href="/admin/pricing"> <span class="fa-stack fa-lg pull-left"><i class="fa fa-cart-plus fa-stack-1x "></i></span>Pricing</a>
+            </li>
+            <li class="m-3">
+               <a href="/admin/history"><span class="fa-stack fa-lg pull-left"><i class="fa fa-youtube-play fa-stack-1x "></i></span>History</a>
+            </li>
+            <li class="m-3">
+              <a href="/"><span class="fa-stack fa-lg pull-left"><i class="fa fa-youtube-play fa-stack-1x "></i></span>Back Home</a>
+           </li>
+         </ul>
+      </div>
+      {% else %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
         <a class="navbar-brand" href="/home">
@@ -83,7 +138,7 @@
         </div>
       </div>
     </nav>
-
+{% endif %}
     {% block content %} {% endblock %}
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

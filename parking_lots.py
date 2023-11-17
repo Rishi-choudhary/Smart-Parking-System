@@ -1,7 +1,7 @@
 import cv2
 import pickle
 
-url ="http://192.168.97.154:8080/video"
+url ="http://192.168.101.3:8080/video"
 
 
 cap = cv2.VideoCapture(url)

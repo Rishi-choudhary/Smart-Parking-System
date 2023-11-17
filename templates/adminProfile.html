@@ -13,7 +13,7 @@
 
 
 <div class="container profile">
-    <h1 class="font-bold text-center my-5">Profile Page</h1>
+    <h1 class="font-bold text-center my-5">Admin Profile</h1>
 
     <div class="row mb-3 profile-photo mb-5">
         <div class="col-md-3  profile-photo">
@@ -21,12 +21,19 @@
         </div>
         <h2 class="text-center mt-3">{{ username }}</h2>
     </div>
+<hr>
+    <div class="card mb-5 ">
+        <div class="card-header">Your Location</div>
+        <div class="card-body">
+            <h1 class="text-center">{{location}}</h1>
+        </div>
+    </div>
  <hr>
     <!-- Change Username Section -->
     <div class="card mb-5 ">
         <div class="card-header">Change Username</div>
         <div class="card-body">
-            <form action="/profile" method="post">
+            <form action="/admin/profile" method="post">
                 <div class="form-group">
                     <label class="my-3" for="newUsername">New Username</label>
                     <input type="text" name="username" class="form-control" id="newUsername" placeholder="Enter new username">
@@ -36,7 +43,7 @@
         </div>
     </div>
     <hr>
-
+  
     <button style="width: 20%; margin:auto;" class="btn btn-danger my-5 px-5 "><a href="/logout" class="logout"><h3>Log out</h3></a></button>
 
 

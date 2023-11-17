@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table m-5 table-striped">
+    <!-- <h1>history</h1> -->
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+
+            <th scope="col">License no.</th>
+            <th scope="col">Date</th>
+            <th scope="col">Start Time</th>
+            <th scope="col">End Time</th>
+            <th scope="col">parking slot</th>
+            <th scope="col">Price</th>
+
+
+
+      
+        </tr>
+    </thead>
+    <tbody>
+        {% for location in locations %}
+            <tr>
+                <td>{{ location[0]}}</td>
+                
+                <td>{{ location[1]}}</td>
+                <td>{{location[2]}}</td>
+                <td>{{location[3]}}</td>
+                <td>{{location[4]}}</td>
+                <td>{{location[7]}} </td>
+                <td>$50</td>
+                
+
+               
+            </tr>
+        {% endfor %}
+            
+    </tbody>
+</table>
+
+{% endblock %}

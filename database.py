@@ -1,5 +1,7 @@
 import sqlite3
 import hashlib
+from sqlite3 import Error
+
 
 def create_database():
     conn = sqlite3.connect('my_database.db')
@@ -26,6 +28,16 @@ def create_database():
             parking_slot INTEGER
         )
     ''')
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS admin (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        email TEXT NOT NULL,
+        location TEXT NOT NULL,
+        price INT NOT NULL
+        )
+        """)
     conn.commit()
     conn.close()
 
@@ -37,9 +49,8 @@ def get_user_details(username):
     conn = sqlite3.connect('my_database.db')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM User WHERE username = ?", (username,))
-    user = cursor.fetchone()
+    user = cursor.fetchall()
     conn.close()
-    print(user)
     return user
 
 def update_username(user_id, new_username):
@@ -73,6 +84,67 @@ def update_password(user_id, new_password):
     conn.close()
 
 
+def insert_admin_details(username, password, email,location,price):
+    hashed_password = hash_password(password)  # Hash the admin password
+    insert_query = """
+    INSERT INTO admin (username, password, email,location,price) VALUES (?, ?, ?,?,?);
+    """
+    try:
+        connection = sqlite3.connect('my_database.db')
+        cursor = connection.cursor()
+        cursor.execute(insert_query, (username, hashed_password, email,location,price))
+        connection.commit()
+        print('Admin details inserted successfully')
+    except Error as e:
+        print(e)
+
+def get_admin_details(username):        
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM admin WHERE username = ?", (username,))
+    user = cursor.fetchall()
+    conn.close()
+    return user
+
+def get_admin_details_by_id(id):        
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM admin WHERE id = ?", (id,))
+    admin = cursor.fetchall()
+    conn.close()
+    return admin
+   
+
+
+
+def update_admin_username(admin_id, new_username):
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+
+    # Check if another user already has the same username
+    cursor.execute("SELECT id FROM admin WHERE username = ? AND id != ?", (new_username, admin_id))
+    existing_user_id = cursor.fetchone()
+
+    if existing_user_id:
+        # Another user already has this username, return False to indicate the update is not possible
+        conn.close()
+        return False
+    else:
+        # Update the username
+        cursor.execute("UPDATE admin SET username = ? WHERE id = ?", (new_username, admin_id))
+        conn.commit()
+        conn.close()
+        return True
+
+def update_admin_location_price(admin_id, price):
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("UPDATE admin SET price = ? WHERE id = ?", (price, admin_id))
+    conn.commit()
+    conn.close()
+    return True
+      
+     
 
 
 
@@ -91,6 +163,7 @@ def new_user(username, email, password, car_no, mobile_no):
     hashed_password = hash_password(password)
     cursor.execute("INSERT INTO User (username, email, password, car_no, mobile_no) VALUES (?, ?, ?, ?, ?)",
                    (username, email, hashed_password, car_no, mobile_no))
+    print("new user added")
     conn.commit()
     conn.close()
     
@@ -138,6 +211,17 @@ def get_user_schedules(user_id):
     conn.close()
     return schedules
 
+
+def get_admins_shedules(location):
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Schedule WHERE location = ?", (location.capitalize(),))
+    schedules = cursor.fetchall()
+    print(schedules)
+    conn.close()
+    return schedules
+
+
 def get_total_given_amount(user_id):
     conn = sqlite3.connect('my_database.db')
     cursor = conn.cursor()
@@ -148,7 +232,6 @@ def get_total_given_amount(user_id):
 
 
 
-import sqlite3
 
 def check_schedule_reserve(date, start_time, end_time):
     conn = sqlite3.connect('my_database.db')
@@ -169,3 +252,20 @@ def check_schedule_reserve(date, start_time, end_time):
                     return [schedule[8],schedule[4],schedule[5]]  # Overlapping time, cannot reserve
     conn.close()
     return True  # No overlap, safe to reserve
+
+
+# Example usage:
+if __name__ == '__main__':
+
+
+    # Example: Insert admin details
+    insert_admin_details( 'admin1', 'admin_password', 'admin1@example.com',"SILVASSA",70)
+
+    # # Example: Get admin details
+    # admin_details = get_admin_details('admin1')[0]
+    # if admin_details:
+    #     print('Admin Details:')
+    #     print(f'ID: {admin_details[0]}')
+    #     print(f'Username: {admin_details[1]}')
+    #     print(f'Password: {admin_details[2]}')
+    #     print(f'Email: {admin_details[3]}')

@@ -10,15 +10,15 @@
 </div>
 {% endif %}
 
-<form class="auth" action="/login" method="post">
+<form class="auth" action="/adminLogin" method="post">
 
 
 
-    <h1 class="text-center m-5">Login</h1>
+    <h1 class="text-center m-5">Admin Login</h1>
     <div class="container-sm border p-3 container-fluid">
     <div class="mt-5 mb-3">
       <label for="exampleInputEmail1" class="form-label">Username</label>
-      <input type="text" required name="username" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+      <input type="text" required name="username" class="form-control" id="exampleInputEmail1" >
     </div>
     <div class="mb-3">
       <label for="exampleInputPassword1" class="form-label">Password</label>
@@ -28,8 +28,7 @@
 
     <div class="button">
         <button type="submit" class="btn  btn-dark">Login</button>
-        <a class="px-3" href="/register">Create a account</a>
-        <a class="px-3" href="/adminLogin ">login as admin</a>
+        <a class="px-3" href="/login ">login as user</a>
       </div>
     </div>
   </form>

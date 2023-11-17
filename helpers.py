@@ -2,6 +2,11 @@ from flask import redirect, render_template, session
 import json
 from functools import wraps
 from datetime import datetime
+import cv2
+import pickle
+import numpy as np 
+import time
+import os
 
 
 # from camera import parking_space
@@ -26,6 +31,14 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("admin_id") is None:
+            return redirect("/adminLogin")
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 
 
@@ -45,10 +58,100 @@ def hours_between_times(start_time, end_time):
 
     return hours
 
-# def update_parking_data():
-#     # Implement your data processing logic here
-#     while True:
-#         new_data = parking_space()  # Implement your data retrieval logic
-#         if new_data != previous_data:
-#             previous_data = new_data
-#             return new_data
+def generate_frames():
+    url= "http://192.168.101.3:8080/video"
+    camera = cv2.VideoCapture(url)
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+def reserve_function():
+              
+               
+        start_time = time.time()
+
+        width,height = 180, 170
+
+
+        url ="http://192.168.101.5:8080/video"
+
+        #video Feed
+        cap = cv2.VideoCapture(url)
+
+        with open('CarParkPos',"rb") as f:
+                poslist = pickle.load(f)
+        
+        
+        parking_box_id = []
+        
+        def parking_space(imgPro):
+            for pos in poslist:
+                x = pos[0]
+                y = pos[1]
+                ImgCrop = imgPro[y:y+height,x:x+height]
+                count = cv2.countNonZero(ImgCrop)
+                if count<800:
+                    color = (0,255,0)
+                    thickness =5
+                    parking_box_id.append(pos)
+                    
+                else:
+                    thickness =2
+                    color = (0,0,255)
+                cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),color,thickness)
+                
+        
+        
+        while True:
+            success,img = cap.read()
+            
+            imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+            imgBlur = cv2.GaussianBlur(imgGray,(3,3),1)
+            
+            imgThreshold = cv2.adaptiveThreshold(imgBlur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,25,16)
+            imgMedian = cv2.medianBlur(imgThreshold,5)
+            kernel = np.ones((3,3),np.uint8)
+            imgDilate = cv2.dilate(imgMedian,kernel,iterations=1)
+            
+            
+            parking_space(imgDilate)
+            
+            if not success:  # Check if the frame was captured successfully
+                print("Error: Cannot capture frame")
+                break
+            
+            if time.time() - start_time >= 2:
+                break
+            
+            for pos in poslist:
+                cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),(255,0,255),2)
+            cv2.waitKey(1)
+            
+        cap.release()
+        cv2.destroyAllWindows()
+        # print(parking_box_id)
+        unique_objects = []
+
+        for obj in parking_box_id:
+            if obj[2] not in unique_objects:
+                unique_objects.append(obj[2])
+
+        return unique_objects
+    
+    
+def calculate_similarity(list1, list2):
+    set1 = set(list1)
+    set2 = set(list2)
+
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+
+    similarity_percentage = (intersection / union) * 100
+    return similarity_percentage

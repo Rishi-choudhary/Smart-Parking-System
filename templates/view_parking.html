@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<h1 class="text-center mt-5">View Parking</h1>
+<div class="container video-feed mt-5">
+    <img class="img-fluid border"
+     src="{{ url_for('video_feed') }}" width="640" height="480" />
+</div>
+
+{% endblock %}
+    

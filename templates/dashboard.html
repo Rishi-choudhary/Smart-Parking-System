@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid admin p-5 container-fluid d-flex justify-content-around">
+    <div class="card spaces mb-5 mx-3 p-3" style="width: 50%;">
+        <div class=" card-body mx-3">
+          <h1 class="mt-5">{{ parking_list }} / {{ total_parking }}</h1>
+          <p>Parking Spaces</p>
+        </div>
+      </div>
+      <div class="card money  p-3 mb-5" style="width: 50%">
+        <div class="  card-body mx-3">
+          <h1 class=" mt-5"></h1>
+          <p>Today's earnings</p>
+        </div>
+    </div>
+</div>
+
+ <table class="table mx-5 table-striped">
+        <!-- <h1>history</h1> -->
+        <thead>
+            <tr>
+                <th scope="col">id</th>
+                <th scope="col">license no.</th>
+                <th scope="col">Date    </th>
+                <th scope="col">Parking slot</th>
+                <th scope="col">Price</th>
+
+          
+            </tr>
+        </thead>
+        <tbody>
+            {% for location in locations %}
+            <tr>
+                <td>{{ location[0]}}</td>
+                <td>{{ location[1]}}</td>
+                <td>{{location[2]}}</td>
+                <td>{{location[7]}} </td>
+                <td>$50</td>
+                
+
+               
+            </tr>
+        {% endfor %}
+                
+        </tbody>
+    </table>
+{% endblock %}
