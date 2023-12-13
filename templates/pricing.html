@@ -8,7 +8,7 @@
     {% endif %}
     
     <div class="container-fluid p-5 m-5 ">
-        <h1 class="m-5 text-center">Your Current Price per hour is {{ price }}</h1> <hr style="width: 95%;">
+        <h1 class="m-5 text-center">Your Current Price per hour is <b>${{ price }}</b></h1> <hr style="width: 95%;">
         <form class="mt-5" id="pricingForm" action="/admin/pricing" method="post">
             <label class="text-center" for="hourlyRate"><h3 class=" text-center">Set Pricing for Hourly Rate ($):</h3></label>
             <input type="number" name="price" min="0" style="font-size: 1.5rem;" class="px-3 mx-3 my-5" id="hourlyRate">

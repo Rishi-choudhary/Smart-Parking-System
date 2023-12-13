@@ -52,7 +52,7 @@ from helpers import calculate_similarity
 reader = easyocr.Reader(['en'])
 
 
-url = "http://192.168.101.3:8080/video"
+url = "http://192.168.64.23:8080/video"
 # Initialize the video capture
 cap = cv2.VideoCapture(url)  # 0 for the default camera, or provide a path to a video file
 

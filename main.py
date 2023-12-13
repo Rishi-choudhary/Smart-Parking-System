@@ -1,12 +1,13 @@
 from flask import Flask, flash, jsonify, redirect, render_template, request, session ,url_for,Response
 from flask_session import Session
 import math
-from helpers import login_required, hours_between_times,generate_frames,reserve_function,admin_login_required
+from helpers import *
 import pickle
 import os
 import sqlite3
 import hashlib
 from sqlite3 import Error
+from datetime import datetime
 from database import *
 
 
@@ -53,6 +54,11 @@ def index():
 
 shedule = []
 
+current_date = datetime.now()
+
+# Format the date as dd-mm-yy
+formatted_date = current_date.strftime("%y-%m-%d")
+
 @app.route('/home', methods=["GET", "POST"])
 @login_required
 def home():
@@ -61,15 +67,17 @@ def home():
     if request.method == "POST":
         id = session["user_id"]
         location = request.form.get("location")
-        Date = request.form.get("Date")
+        date = request.form.get("Date")
+        print(date)
         start_time = request.form.get("start-time")
+       
         end_time = request.form.get("end-time")
         hours = hours_between_times(start_time,end_time)
 
         if location not in locationsList:
             return render_template("home.html", location=False)
         
-        shedule.append([id,get_license_no(get_user_details_by_id(id)[1]),Date,start_time,end_time,math.floor(hours),location])
+        shedule.append([id,get_license_no(get_user_details_by_id(id)[1]),date,start_time,end_time,math.floor(hours),location])
         print(shedule)
         
         return redirect("/reserve")
@@ -95,18 +103,26 @@ def reserve():
     if request.method == "POST":
         return redirect("/bill")
     else:
-        reserve_fucntion_list = reserve_function()
-        reserved_parking = []
-        shedule_reserved_parking =  check_schedule_reserve(shedule[0][2],shedule[0][3],shedule[0][4])
-        if  (shedule_reserved_parking):
-            return render_template('reservation.html',parking_list=reserve_fucntion_list,total_parking=poslist,reserved=reserved_parking)
+        date = shedule[0][2]
+        start_time = shedule[0][3]
+        end_time =shedule[0][4]
+        reserve_fucntion_list = reserve_function(formatted_date)
+       
+        reserved = check_reservation(date,start_time,end_time,shedule[0][6])
+        
+        # if check_schedule_reserve(shedule[0][2],shedule[0][3],shedule[0][4]):
+        #     pass
+        #     print("moye moye")
+        # else:
+        #     shedule_reserved_parking.append(int((check_schedule_reserve(shedule[0][2],shedule[0][3],shedule[0][4]))))
+        #     print(shedule_reserved_parking)
 
-        else:
-            reserved_parking.append(shedule_reserved_parking)
-            return render_template('reservation.html',parking_list=reserve_fucntion_list,total_parking=poslist,reserved=reserved_parking,start_time=shedule_reserved_parking[1],end_time = shedule_reserved_parking[2])
-            
+        return render_template('reservation.html',parking_list=reserve_fucntion_list,total_parking=poslist,reserved=reserved)
+
+        
             
 
+            
             
 
 
@@ -254,10 +270,9 @@ def admin():
     
     with open('CarParkPos',"rb") as f:
         poslist = pickle.load(f)
+    reserve_fucntion_list = len(reserve_function(formatted_date))
     
-    reserve_fucntion_list = len(reserve_function())
-    
-    admin_location = get_admin_details_by_id(id)[0][4]
+    admin_location = get_admin_details_by_id(id)[0][4]  
     conn = sqlite3.connect('my_database.db')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Schedule WHERE location = ?", (admin_location,))
@@ -269,10 +284,11 @@ def admin():
 @admin_login_required
 def reserved():
     
+    
       
     with open('CarParkPos',"rb") as f:
         poslist = pickle.load(f)
-    reserve_fucntion_list = reserve_function()
+    reserve_fucntion_list = reserve_function(formatted_date)
     return render_template('reserved.html',parking_list=reserve_fucntion_list,total_parking=poslist,admin=True)
     
 @app.route("/admin/view_parking")
@@ -351,15 +367,21 @@ parking_slot = []
 @app.route("/bill",  methods=["GET",'POST'])
 @login_required
 def bill():
-    
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM admin WHERE location = ?", (shedule[0][6],))
+    admin_details = cursor.fetchall()
+    conn.close()
     if request.method == "POST":
         data = request.get_json()
         parking_slot.append(data['data'])
         shedule.append(data['data'][0])
         print(shedule)
         return jsonify({'message': 'Data received!'}), 200
+    
     else:
-        return render_template("billing.html",data=parking_slot[0])
+        print(parking_slot)
+        return render_template("billing.html",data=parking_slot[0],price=admin_details[0][5],hours=hours_between_times(shedule[0][3],shedule[0][4]),date=shedule[0][2])
 
 @app.route("/pay",methods=["POST"])
 @login_required

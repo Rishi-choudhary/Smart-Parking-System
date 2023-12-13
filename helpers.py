@@ -7,6 +7,7 @@ import pickle
 import numpy as np 
 import time
 import os
+from database import *
 
 
 # from camera import parking_space
@@ -59,7 +60,8 @@ def hours_between_times(start_time, end_time):
     return hours
 
 def generate_frames():
-    url= "http://192.168.101.3:8080/video"
+    url= "http://192.168.101.9:8080/video"
+
     camera = cv2.VideoCapture(url)
     while True:
         success, frame = camera.read()
@@ -72,15 +74,20 @@ def generate_frames():
                  b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-def reserve_function():
+def reserve_function(date):
               
-               
+    current_date = datetime.now()
+
+    # Format the date as dd-mm-yy
+    formatted_date = current_date.strftime("%y-%m-%d")
+    print(formatted_date)
+    if date == formatted_date:
         start_time = time.time()
 
         width,height = 180, 170
 
 
-        url ="http://192.168.101.5:8080/video"
+        url= "http://192.168.101.9:8080/video"
 
         #video Feed
         cap = cv2.VideoCapture(url)
@@ -144,6 +151,53 @@ def reserve_function():
                 unique_objects.append(obj[2])
 
         return unique_objects
+    else:
+        reserved = []
+        conn = sqlite3.connect('my_database.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+        SELECT * FROM Schedule
+        WHERE date_added = ?
+    ''', (date,))
+        parking_list = cursor.fetchall()
+   
+        for parking in parking_list: 
+            reserved.append(parking[7])
+        conn.close()
+        return reserved
+
+        
+    
+    
+    
+
+# def check_schedule_reserve(date,start_time,end_time,location):
+#     conn = sqlite3.connect('my_database.db')
+#     cursor = conn.cursor()
+
+#     # Check if another user already has the same username
+#     cursor.execute("SELECT * FROM shedule WHERE location = ? and date_added = ?", (location,date,))
+#     parking_shedules = cursor.fetchall()
+#     start_time  = int(start_time[:2])
+#     end_time  =  int(end_time[:2])
+#     print(start_time,end_time)
+#     parkings = []
+#     for parking in parking_shedules:
+#         if (start_time - parking[3]) > 0 and (start_time - parking[4]) < 0:
+#             parkings.append(int(parking[7]))
+            
+#         # elif (start_time - parking[3]) > 0 and (end_time - parking[4]) > 0:
+#         #     return True
+#         elif (start_time - parking[3]) < 0 and (end_time - parking[4]) > 0:
+#             parkings.append(int(parking[7]))
+#             print("parking")
+#         else:
+#             return True
+        
+#     return parkings
+        
+
+
     
     
 def calculate_similarity(list1, list2):
@@ -155,3 +209,44 @@ def calculate_similarity(list1, list2):
 
     similarity_percentage = (intersection / union) * 100
     return similarity_percentage
+
+
+# import serial
+# import cv2
+# import numpy as np
+# import requests
+
+# ser = serial.Serial('COM3', 115200)  # Change 'COM3' to your Arduino's serial port
+# url = 'http://127.0.0.1:5000/capture'  # Adjust the Flask server URL
+
+# def send_to_flask(data):
+#     response = requests.post(url, data=data)
+#     print(response.text)
+
+# def process_image(image_data):
+#     # Reconstruct the image from the received data
+#     image_array = np.frombuffer(image_data, dtype=np.uint8)
+#     image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+#     # Perform image processing or analysis as needed
+#     # Example: Convert to grayscale
+#     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+#     # Example: Display the images
+#     cv2.imshow('Original Image', image)
+#     cv2.imshow('Grayscale Image', gray_image)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
+
+# while True:
+#     if ser.in_waiting > 0:
+#         signal = ser.readline().decode().strip()
+#         if signal == '1':
+#             # Read entire image data as a single block
+#             camera_data = ser.read(320 * 240)  # Adjust based on your image size
+
+#             # Send camera data to Flask
+#             send_to_flask(camera_data)
+
+#             # Process the image using OpenCV
+#             process_image(camera_data)

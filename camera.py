@@ -5,11 +5,11 @@ import numpy as np
 import time
 
 
-width,height = 180, 170
+width,height = 210, 210
 
 
 def camera_feed():
-    url ="http://192.168.101.3:8080/video"
+    url ="http://192.168.101.9:8080/video"
 
     #video Feed
     cap = cv2.VideoCapture(url)
@@ -63,4 +63,4 @@ def camera_feed():
         cv2.waitKey(1)
         
         
-        
+camera_feed()

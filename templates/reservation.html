@@ -22,7 +22,7 @@
         {% for parking in total_parking %}
 
         {% if parking[2] in reserved%}
-        <div class="lot-box text-center" style="background-color: gray;">{{ parking[2] }} reserved form {{ start_time }} to {{ end_time }}</div>
+        <div class="lot-box inactive text-center" style="background-color: gray;">{{ parking[2] }} reserved </div>
         {% elif parking[2] in parking_list %} 
         <div  class="lot-box inactive">{{ parking[2] }}</div>
         {% else %}

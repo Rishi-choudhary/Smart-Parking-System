@@ -1,13 +1,13 @@
 import cv2
 import pickle
 
-url ="http://192.168.101.3:8080/video"
+url ="http://192.168.101.9:8080/video"
 
 
 cap = cv2.VideoCapture(url)
 
 
-width,height = 180, 170
+width,height = 210, 210
 
 try:
     with open('CarParkPos',"rb") as f:
@@ -45,6 +45,7 @@ while True:
     #     x, y, box_id = cv2.boundingRect(pos)
     cv2.namedWindow("Image", cv2.WINDOW_NORMAL)   
     cv2.imshow("Image",image)
+
     cv2.setMouseCallback("Image",mouseClick)
     cv2.waitKey(1)
     

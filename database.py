@@ -25,7 +25,7 @@ def create_database():
             end_time TIME,
             hours INT,
             location TEXT,
-            parking_slot INTEGER
+            parking_slot INT
         )
     ''')
     cursor.execute("""
@@ -252,6 +252,33 @@ def check_schedule_reserve(date, start_time, end_time):
                     return [schedule[8],schedule[4],schedule[5]]  # Overlapping time, cannot reserve
     conn.close()
     return True  # No overlap, safe to reserve
+
+
+        
+def check_reservation(date,start_time,end_time,location):
+    conn = sqlite3.connect('my_database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM Schedule
+        WHERE date_added = ? AND location = ? AND (
+            (start_time <= ? AND ? <= end_time) OR
+            (start_time <= ? AND ? <= end_time)
+        )
+    ''', (date,location, start_time, start_time, end_time, end_time))
+    conflicts = cursor.fetchall()
+    print(conflicts)
+    if conflicts:
+        reservation =  []
+        for conflict in conflicts: 
+            reservation.append(int(conflict[7]))
+            print("conflict cpnflic")
+        conn.close()
+        return reservation
+    else:
+        conn.close()
+        return []
+        
+    
 
 
 # Example usage:

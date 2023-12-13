@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if  parking_filled %}
+<div class="alert alert-danger mt-3 d-flex align-items-center justify-content-center" role="alert">
+  <!-- <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg> -->
+  <div>
+    <h3 class="text-center">Parking is Full</h3>
+  </div>
+</div>
+{% endif %}
+
 {% if not location%}
 <div class="alert alert-danger mt-3 d-flex align-items-center justify-content-center" role="alert">
   <!-- <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg> -->
@@ -12,7 +22,7 @@
 <form class="hero-form" action="/home" method="post">
     <div class="container-fluid p-3 mb-5">
        <div class="m-5 "> 
-            <input type="text" id="locationInput" required name="location" class="p-3 form-control" id="location" placeholder="Search for a location">
+            <input type="text" autocomplete="off" id="locationInput" required name="location" class="p-3 form-control" id="location" placeholder="Search for a location">
         </div>
 
         <div class="row">
@@ -99,7 +109,6 @@
     updateTimeInput();
 
     // Update the date and time inputs every second (1000 milliseconds)
-    setInterval(updateDateInput, 1000);
     setInterval(updateTimeInput, 1000);
 
       // Example list of locations
