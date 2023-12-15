@@ -1,13 +1,12 @@
 import cv2
 import pickle
 
-url ="http://192.168.101.9:8080/video"
+url ="http://192.168.101.4:8080/video"
 
 
 cap = cv2.VideoCapture(url)
 
-
-width,height = 210, 210
+width,height = 100, 100
 
 try:
     with open('CarParkPos',"rb") as f:
@@ -23,10 +22,12 @@ def mouseClick(events,x,y, flags, params):
         poslist.append((x,y,box_id))
     if events == cv2.EVENT_RBUTTONDOWN:
         for i, pos in enumerate(poslist):
-            x1,y1 = pos
+            x1,y1,box_id = pos
             if x1 < x < x1+width and y1 < y < y1+height:
+                print(f"Removed box {box_id}")
                 poslist.pop(i)
-    
+                
+
     with open('CarParkPos',"wb") as f:
         pickle.dump(poslist,f) 
         

@@ -276,6 +276,15 @@ main {
   background-color: rgba(251, 48, 48, 0.664);
 }
 
+.disabled {
+  opacity: 0.5;
+  /* You can adjust the opacity to make it visually indicate the disabled state */
+  pointer-events: none;
+  /* This prevents the element from being interacted with (e.g., clicking) */
+  cursor: not-allowed;
+  /* Set the cursor to indicate that the element is not clickable */
+}
+
 .reserve-button {
   width: 70%;
   margin: auto;

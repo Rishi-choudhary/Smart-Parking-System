@@ -7,13 +7,20 @@
 <!-- <div id="data-display"></div> -->
 
 <form method="post" action="/reserve"  class="form">
+    
+
+    {% if  Button %}
+    <div class="alert m-3 alert-danger" role="alert">
+       Parking is full. back to <a href="/home">home</a>
+      </div>
+      {% endif %}
 
 <div class="container-fluid my-5" id="main-reservation">
 <div class="parking-container">
     <div class="data-box container-fluid">
         <h3 class="m-para font-bold">Parking Status</h3>
-        <p class="total-para">Total Seats:</p><span class="total-data">8</span>
-        <p class="avail-para">Available: </p><span class="avail-data">2</span>
+        <p class="total-para">Total parking:</p><span class="total-data">{{total_parking|length}}</span>
+        <p class="avail-para">Available: </p><span class="avail-data">{{ total_parking|length - (parking_list|length + reserved|length)}}</span>
         <div class="location">
                 <p>Your Location:</p><i class="fas fa-map-marker-alt"></i><p>Silvassa</p>
         </div>
@@ -22,18 +29,27 @@
         {% for parking in total_parking %}
 
         {% if parking[2] in reserved%}
-        <div class="lot-box inactive text-center" style="background-color: gray;">{{ parking[2] }} reserved </div>
+        <div class="lot-box inactive text-center disabled"  style="background-color: gray;">{{ parking[2] }} reserved </div>
         {% elif parking[2] in parking_list %} 
-        <div  class="lot-box inactive">{{ parking[2] }}</div>
+        <div  class="lot-box inactive disabled">{{ parking[2] }}</div>
         {% else %}
         <div  class="lot-box">{{ parking[2] }}</div>
         {% endif %}
         {% endfor %}
         <input type="text" class="input d-none" name="parking_slot">
     </div>
+    {% if not Button %}
     <div class="container-fluid row reserve-button">
-        <button type="submit" onclick="sendData()" class="btn mb-5 mt-3 px-5 btn-primary">Book slot</button>
+        <button type="submit" onclick="sendData()"  class="btn mb-3 mt-3 px-5 btn-primary">Book slot</button>
+    
+    {% else %}
+    
+        <button type="submit" onclick="sendData()" disabled  class="btn mb-3 mt-3 px-5 btn-primary">Book slot</button>
+
     </div>
+    {% endif %}
+    <button  class="btn mb-5 mt-3 px-5 btn-primary"><a href="/home">Back</a></button>
+
 </div>
 
 </form>
@@ -61,12 +77,11 @@
                 }
                 seat.classList.add('selected');
                 selectedSeat = seat;
-                parking_slot.value = selectedSeat.innerHTML
-                console.log(parking_slot.value)
+                parking_slot.value = selectedSeat.innerHTML;
+                console.log(parking_slot.value);
             }
         });
-        
-    }); 
+    });
 
     function sendData() {
         const inputValue =parking_slot.value;

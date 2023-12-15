@@ -10,19 +10,6 @@ import os
 from database import *
 
 
-# from camera import parking_space
-
-
-# def apology(message, code=400):
-#     """Render message as an apology to user."""
-#     def escape(s):
-    
-#         for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
-#                          ("%", "~p"), ("#", "~h"), ("/", "~s"), ("\"", "''")]:
-#             s = s.replace(old, new)
-#         return s
-#     return render_template("apology.html", top=code, bottom=escape(message)), code
-
 
 def login_required(f):
     @wraps(f)
@@ -41,8 +28,6 @@ def admin_login_required(f):
     return decorated_function
 
 
-
-
 def hours_between_times(start_time, end_time):
     # Define the time format for 24-hour clock (e.g., "HH:MM")
     time_format = "%H:%M"
@@ -57,11 +42,14 @@ def hours_between_times(start_time, end_time):
     # Extract the number of hours from the time difference
     hours = time_difference.total_seconds() / 3600
 
-    return hours
+    if hours < 0 :
+        return (12 + abs(hours))
+    else:
+        return hours
 
 def generate_frames():
-    url= "http://192.168.101.9:8080/video"
-
+    
+    url = "https://192.168.101.4:8080/video"
     camera = cv2.VideoCapture(url)
     while True:
         success, frame = camera.read()
@@ -84,10 +72,12 @@ def reserve_function(date):
     if date == formatted_date:
         start_time = time.time()
 
-        width,height = 180, 170
+        
+        width,height = 100 , 100
 
 
-        url= "http://192.168.101.9:8080/video"
+        url = "https://192.168.101.4:8080/video"
+
 
         #video Feed
         cap = cv2.VideoCapture(url)
@@ -171,82 +161,9 @@ def reserve_function(date):
     
     
 
-# def check_schedule_reserve(date,start_time,end_time,location):
-#     conn = sqlite3.connect('my_database.db')
-#     cursor = conn.cursor()
-
-#     # Check if another user already has the same username
-#     cursor.execute("SELECT * FROM shedule WHERE location = ? and date_added = ?", (location,date,))
-#     parking_shedules = cursor.fetchall()
-#     start_time  = int(start_time[:2])
-#     end_time  =  int(end_time[:2])
-#     print(start_time,end_time)
-#     parkings = []
-#     for parking in parking_shedules:
-#         if (start_time - parking[3]) > 0 and (start_time - parking[4]) < 0:
-#             parkings.append(int(parking[7]))
-            
-#         # elif (start_time - parking[3]) > 0 and (end_time - parking[4]) > 0:
-#         #     return True
-#         elif (start_time - parking[3]) < 0 and (end_time - parking[4]) > 0:
-#             parkings.append(int(parking[7]))
-#             print("parking")
-#         else:
-#             return True
-        
-#     return parkings
         
 
 
     
-    
-def calculate_similarity(list1, list2):
-    set1 = set(list1)
-    set2 = set(list2)
-
-    intersection = len(set1.intersection(set2))
-    union = len(set1.union(set2))
-
-    similarity_percentage = (intersection / union) * 100
-    return similarity_percentage
 
 
-# import serial
-# import cv2
-# import numpy as np
-# import requests
-
-# ser = serial.Serial('COM3', 115200)  # Change 'COM3' to your Arduino's serial port
-# url = 'http://127.0.0.1:5000/capture'  # Adjust the Flask server URL
-
-# def send_to_flask(data):
-#     response = requests.post(url, data=data)
-#     print(response.text)
-
-# def process_image(image_data):
-#     # Reconstruct the image from the received data
-#     image_array = np.frombuffer(image_data, dtype=np.uint8)
-#     image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-#     # Perform image processing or analysis as needed
-#     # Example: Convert to grayscale
-#     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-#     # Example: Display the images
-#     cv2.imshow('Original Image', image)
-#     cv2.imshow('Grayscale Image', gray_image)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
-
-# while True:
-#     if ser.in_waiting > 0:
-#         signal = ser.readline().decode().strip()
-#         if signal == '1':
-#             # Read entire image data as a single block
-#             camera_data = ser.read(320 * 240)  # Adjust based on your image size
-
-#             # Send camera data to Flask
-#             send_to_flask(camera_data)
-
-#             # Process the image using OpenCV
-#             process_image(camera_data)
