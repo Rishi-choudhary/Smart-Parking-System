@@ -47,6 +47,7 @@ def index():
             session.clear()
             if 'my_database.db' in os.listdir():
                 pass
+            
             else:
                 create_database()
             return render_template("index.html")
@@ -69,7 +70,6 @@ def home():
         
         location = request.form.get("location")
         date = request.form.get("Date")
-        print(date)
         start_time = request.form.get("start-time")
        
         end_time = request.form.get("end-time")
@@ -125,7 +125,18 @@ def reserve():
             
 
             
-            
+
+@app.route('/parkings', methods=["GET"])
+@login_required
+def parkings():
+    id = session["user_id"]
+    if request.method == "GET":
+        parkings = get_user_parkings(id)
+        print(parkings)
+        return render_template("myparkings.html",parkings=parkings)
+    
+    
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -139,13 +150,11 @@ def login():
         
 
         if not request.form.get("username") or not request.form.get("password"):
-            print("Galti1")
             return render_template("login.html", credentials=False)
 
         # Query database for admin details
         user_details = get_user_details(request.form.get("username"))
         if len(user_details) == 0 :
-            print("Galti2")
 
             return render_template("login.html", credentials=False)
         
@@ -155,7 +164,6 @@ def login():
         # Ensure admin details exist and password is correct
         if check_password_hash(request.form.get("password"), password):        
             # Remember which user has logged in
-            print("Galti3")
             session["user_id"] = user_details[0][0]
 
             # Redirect user to home page
@@ -181,7 +189,6 @@ def register():
         confirm = request.form.get("confirm")
         mobile_no = request.form.get("mobile")
         
-        print((password == confirm),password,confirm)
 
         if not username:
             return render_template("register.html", cerendiatals=False,password_match=True,username_taken=False)
@@ -223,11 +230,9 @@ def admin_login():
 
         admin_details = get_admin_details( request.form.get("username"))
         if len(admin_details) == 0:
-            print("not nuser")
             return render_template("adminLogin.html", credentials=False)
         
         password = admin_details[0][2]
-        print("fsfs")
         if check_password_hash(request.form.get("password"), password):                    
             session["admin_id"] = admin_details[0][0]
             
@@ -259,7 +264,6 @@ def admin():
     price.execute("SELECT price FROM  admin WHERE id = ? ",(id,))
     locations = cursor.fetchall()
     prices = (price.fetchone()[0])
-    print(type(prices))
     earning = 0
     for price in locations:
         earning+=price[5]*prices
@@ -289,7 +293,6 @@ def pricing():
     
     if request.method == "POST":
         price = request.form.get("price")
-        print(type(price))
         if update_admin_location_price(id,int(price)):
             return render_template("pricing.html",admin=True,show_message=True,price = get_admin_details_by_id(id)[0][5])
         return "SOMETHING ERROR OCCURRED"
@@ -317,7 +320,6 @@ def history():
 def admin_profile():
     id = session["admin_id"]
     admin_details = get_admin_details_by_id(id)[0]
-    print(admin_details)
     location = admin_details[4]
     if request.method == "POST":
         new_username = request.form.get("username")
@@ -367,21 +369,26 @@ def bill():
         data = request.get_json()
         parking_slot.append(data['data'])
         shedule.append(data['data'][0])
-        print(shedule)
         return jsonify({'message': 'Data received!'}), 200
     
     else:
-        print(poslist)
-        print(parking_slot)
-        return render_template("billing.html",data=shedule[1],price=admin_details[0][5],hours=hours_between_times(shedule[0][3],shedule[0][4]),date=shedule[0][2])
+        return render_template("billing.html",data=shedule[1],price=admin_details[0][5],hours=shedule[0][5],date=shedule[0][2])
 
 @app.route("/pay",methods=["POST"])
 @login_required
 def pay():
+    id = session["user_id"]
+    conn = sqlite3.connect('my_database.db')
+    price = conn.cursor()
+    price.execute("SELECT price FROM  admin WHERE id = ? ",(id,))
+    prices = (price.fetchone()[0])
+    conn.close()
     new_schedule(shedule[0][0],shedule[0][1],shedule[0][2],shedule[0][3],shedule[0][4],shedule[0][5],shedule[0][6],int(shedule[1]))
+    # new_schedule(shedule[0][0],shedule[0][1],shedule[0][2],shedule[0][3],shedule[0][4],shedule[0][5],shedule[0][6],int(shedule[1]))
+    add_parking(shedule[0][0], shedule[0][2], shedule[0][3], shedule[0][4], int(shedule[1]), shedule[0][6], ((prices)*shedule[0][5]),shedule[0][1])
     while len(shedule) != 0:
-        shedule.pop()
         print(shedule)
+        shedule.clear()
     return render_template("thankyou.html")
 
 @app.route('/video_feed')
@@ -400,4 +407,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0",port=5000)

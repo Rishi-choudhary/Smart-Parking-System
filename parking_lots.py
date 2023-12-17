@@ -1,7 +1,7 @@
 import cv2
 import pickle
 
-url ="http://192.168.101.4:8080/video"
+url ="http://192.168.251.222:8080/video"
 
 
 cap = cv2.VideoCapture(url)
@@ -44,9 +44,9 @@ while True:
     # # Inside your detection loop
     # for pos in poslist:
     #     x, y, box_id = cv2.boundingRect(pos)
-    cv2.namedWindow("Image", cv2.WINDOW_NORMAL)   
-    cv2.imshow("Image",image)
+    cv2.namedWindow("Parking_lots", cv2.WINDOW_NORMAL)   
+    cv2.imshow("Parking_lots",image)
 
-    cv2.setMouseCallback("Image",mouseClick)
+    cv2.setMouseCallback("Parking_lots",mouseClick)
     cv2.waitKey(1)
     

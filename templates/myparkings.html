@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block content %} 
+
+
+<div class="container mt-5">
+    <h1 class="mb-4">My Parkings</h1>
+
+    <div class="card-deck">
+        {% for parking in parkings %}
+        <div class="card  align-center  mb-3">
+            <div class="card-body parking">
+                <div class="otp-section">OTP: {{ parking[9] }}</div>
+                <h5 class="card-title">Booking ID: {{ parking[0] }}</h5>
+                <p class="card-text">Date: {{ parking[2] }}</p>
+                <p class="card-text">Start Time: {{ parking[3] }}</p>
+                <p class="card-text">End Time: {{ parking[4] }}</p>
+                <p class="card-text">Parking Slot: {{ parking[5] }}</p>
+                <p class="card-text">Location: {{ parking[6] }}</p>
+                <p class="card-text">Price: {{ parking[7] }}</p>
+                <p class="card-text">Car: {{ parking[8] }}</p>
+            </div>
+        
+        
+                
+
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+
+
+{% endblock %}

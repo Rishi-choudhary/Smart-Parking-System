@@ -5,11 +5,12 @@ import numpy as np
 import time
 
 
+width , height = 100,100
 
 
 
 def camera_feed():
-    url  = parking_lots.url
+    url  = "http://192.168.251.222:8080/video"
 
     #video Feed
     cap = cv2.VideoCapture(url)

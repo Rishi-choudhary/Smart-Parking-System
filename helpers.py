@@ -76,7 +76,7 @@ def reserve_function(date):
         width,height = 100 , 100
 
 
-        url = "https://192.168.101.4:8080/video"
+        url = "https://192.168.251.222:8080/video"
 
 
         #video Feed
@@ -165,5 +165,3 @@ def reserve_function(date):
 
 
     
-
-

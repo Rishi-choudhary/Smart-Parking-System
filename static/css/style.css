@@ -278,11 +278,8 @@ main {
 
 .disabled {
   opacity: 0.5;
-  /* You can adjust the opacity to make it visually indicate the disabled state */
   pointer-events: none;
-  /* This prevents the element from being interacted with (e.g., clicking) */
   cursor: not-allowed;
-  /* Set the cursor to indicate that the element is not clickable */
 }
 
 .reserve-button {
@@ -369,74 +366,6 @@ main {
   margin-left: 45%;
 }
 
-@media only screen and (max-width: 600px) {
-  .main-home-div .d-flex {
-    display: -ms-grid;
-    display: grid;
-  }
-  .main-home-div .main-text-box h1 {
-    font-size: 35px;
-    font-weight: 600;
-    text-align: center;
-  }
-  .main-home-div .button {
-    font-size: 10px;
-    margin: 2rem auto;
-    margin-top: 3rem;
-  }
-  .nav-item {
-    padding-left: 0;
-  }
-  form {
-    width: 100%;
-    padding: 10px;
-  }
-  form a {
-    font-size: 12px;
-    text-align: center;
-  }
-  form button {
-    font-size: 16px;
-    padding: 10px 20px;
-  }
-  button {
-    font-size: 10px;
-  }
-  input {
-    width: 100%;
-  }
-  .profile-item img {
-    display: none;
-  }
-  .profile-btn-nav {
-    display: block;
-  }
-  .container-fluid {
-    padding: 0;
-  }
-  .row {
-    display: -ms-grid;
-    display: grid;
-    margin: auto;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    height: 50vh;
-  }
-  .row h1 {
-    font-size: 30px;
-  }
-  #location .form-control input {
-    width: 100%;
-  }
-  span .material-symbols-outlined {
-    display: none;
-  }
-}
-
 .nav-pills > li > a {
   border-radius: 0;
 }
@@ -506,7 +435,8 @@ main {
   line-height: 40px;
 }
 
-.sidebar-nav li a, .logout {
+.sidebar-nav li a,
+.logout {
   display: block;
   text-decoration: none;
   color: #ffffff;
@@ -591,11 +521,11 @@ main {
 }
 
 .admin .spaces {
-  background: #14213D;
+  background: #14213d;
 }
 
 .admin .money {
-  background: #FCA311;
+  background: #fca311;
 }
 
 .video-feed {
@@ -627,5 +557,19 @@ main {
   font-size: 1.3rem;
   cursor: pointer;
   border: 2px solid #e5e5e5;
+}
+
+.parking p {
+  font-size: 20px;
+}
+
+.otp-section {
+  font-size: 50px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.card-text {
+  margin-bottom: 10px;
 }
 /*# sourceMappingURL=style.css.map */

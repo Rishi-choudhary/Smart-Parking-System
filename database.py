@@ -1,11 +1,13 @@
 import sqlite3
 import hashlib
+import random
 from sqlite3 import Error
 
 
 def create_database():
     conn = sqlite3.connect('my_database.db')
     cursor = conn.cursor()
+    print("created Database")
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS User (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,7 +20,7 @@ def create_database():
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Schedule (
-            user_id INTEGER,
+            id INTEGER ,
             car_no TEXT,
             date_added DATE,
             start_time TIME,
@@ -35,10 +37,24 @@ def create_database():
         password TEXT NOT NULL,
         email TEXT NOT NULL,
         location TEXT NOT NULL,
-        price INT NOT NULL,
-        earning INT NOT NULL,
+        price INT NOT NULL
         )
-        """)
+    """)
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS parkings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    parking_slot TEXT NOT NULL,
+    location TEXT NOT NULL,
+    price REAL NOT NULL,
+    car_license_no TEXT NOT NULL,
+    parking_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+                   """)
     conn.commit()
     conn.close()
 
@@ -178,7 +194,7 @@ def get_user_details_by_id(user_id):
 def new_schedule(user_id, car_no, date_added, start_time, end_time, hours, location,parking_slot):
     conn = sqlite3.connect('my_database.db')
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO Schedule (user_id, car_no, date_added, start_time, end_time, hours, location, parking_slot) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
+    cursor.execute("INSERT INTO Schedule (id, car_no, date_added, start_time, end_time, hours, location, parking_slot) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
                    (user_id, car_no, date_added, start_time, end_time, hours, location,parking_slot))
     conn.commit()
     conn.close()
@@ -212,7 +228,6 @@ def get_admins_shedules(location):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Schedule WHERE location = ?", (location.capitalize(),))
     schedules = cursor.fetchall()
-    print(schedules)
     conn.close()
     return schedules
 
@@ -260,12 +275,10 @@ def check_reservation(date,start_time,end_time,location):
         )
     ''', (date,location, start_time, start_time, end_time, end_time))
     conflicts = cursor.fetchall()
-    print(conflicts)
     if conflicts:
         reservation =  []
         for conflict in conflicts: 
             reservation.append(int(conflict[7]))
-            print("conflict cpnflic")
         conn.close()
         return reservation
     else:
@@ -274,7 +287,49 @@ def check_reservation(date,start_time,end_time,location):
         
     
 
+def add_parking(user_id, date, start_time, end_time, parking_slot, location, price,car_license_no):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect('my_database.db')  
+        cursor = conn.cursor()
+        parking_id = generate_booking_id()
+        cursor.execute("""
+            INSERT INTO parkings (user_id, date, start_time, end_time, parking_slot, location, price,car_license_no,parking_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?,?,?)
+        """, (user_id, date, start_time, end_time, parking_slot, location, price,car_license_no,parking_id))
+
+        conn.commit()
+        conn.close()
+
+        print("Booking added successfully.")
+    
+    except Exception as e:
+        print(f"Error adding booking: {str(e)}")
+        
+def get_user_parkings(user_id):
+    try:
+        conn = sqlite3.connect('my_database.db')  
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT * FROM parkings WHERE user_id = ?
+        """, (user_id,))
+
+        bookings = cursor.fetchall()
+
+        conn.close()
+
+        return bookings
+    
+    except Exception as e:
+        print(f"Error getting user bookings: {str(e)}")
+        return None
+
+
+def generate_booking_id():
+    return random.randint(1000, 9999)
 
 if __name__ == '__main__':
+    # create_database()
     insert_admin_details( 'admin1', 'admin_password', 'admin1@example.com',"SILVASSA",70)
     insert_admin_details( 'rishi', 'admin', 'admin1@example.com',"VAPI",80)
