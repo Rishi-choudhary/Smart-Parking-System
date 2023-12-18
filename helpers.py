@@ -49,7 +49,7 @@ def hours_between_times(start_time, end_time):
 
 def generate_frames():
     
-    url = "https://192.168.101.4:8080/video"
+    url = "https://192.168.251.222:8080/video"
     camera = cv2.VideoCapture(url)
     while True:
         success, frame = camera.read()

@@ -38,7 +38,6 @@ def camera_feed():
                 data+=pos
                 
             cv2.rectangle(img,(pos[0],pos[1]),(pos[0]+width,pos[1]+height),color,thickness)
-        print(data)
         
 
 
